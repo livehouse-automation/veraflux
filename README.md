@@ -5,7 +5,7 @@ To use this plugin you'll need a working local InfluxDB instance and a database 
 
 To create the database within InfluxDB, launch the command line interface on your InfluxDB server with the command ```influx```. Create the database with the following command:
 
-```CREATE DATABASE vera WITH DURATION 365d NAME default-1-year```
+```CREATE DATABASE "vera" WITH DURATION 365d NAME "default-1-year"```
 
 This will create a database named "vera", with a default retention policy of 1 year (365 days). Measurement points older than 1 year will be dropped automatically by InfluxDB. Feel free to lengthen/shorten the retention policy as your requirements dictate.
 
