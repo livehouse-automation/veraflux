@@ -10,7 +10,7 @@
   <functions>
 	local VERAFLUX_SID = "urn:livehouse-automation:serviceId:VeraFlux1"
 	
-	function main(lul_device)
+	function startFluxCapacitor(lul_device)
 		luup.log("VeraFlux plugin: loading library L_VeraFlux1 ...")
 		if (package.path:find ("/etc/cmh-ludl/?.lua;/etc/cmh-lu/?.lua", 1, true) == nil) then
 			package.path = package.path .. ";/etc/cmh-ludl/?.lua;/etc/cmh-lu/?.lua"
@@ -26,12 +26,13 @@
 		end
 
 		luup.log("VeraFlux plugin: library L_VeraFlux1 loaded")
-
+		veraFluxOnTimer = VeraFlux.veraFluxOnTimer
+		veraFluxSetupCallbacks = VeraFlux.veraFluxSetupCallbacks
 		return VeraFlux.main(lul_device)
 	end
   
   </functions>
-  <startup>main</startup>
+  <startup>startFluxCapacitor</startup>
   <actionList>
     <action>
       <serviceId>urn:livehouse-automation:serviceId:VeraFlux1</serviceId>

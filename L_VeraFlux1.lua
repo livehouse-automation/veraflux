@@ -498,8 +498,9 @@ module("L_VeraFlux1", package.seeall)
 
       -- Do this deferred to avoid slowing down startup processes.
       --
-      luup.call_timer("VeraFlux.veraFluxOnTimer", 1, "1", "")
-	  luup.call_timer("VeraFlux.veraFluxSetupCallbacks", 1, "2", "")
+	  veraFluxDebugLog("main function - initialise OnTimer and Callbacks")
+      luup.call_timer("veraFluxOnTimer", 1, "1", "")
+	  luup.call_timer("veraFluxSetupCallbacks", 1, "2", "")
       return true
     end
 
@@ -514,7 +515,9 @@ module("L_VeraFlux1", package.seeall)
       -- The last parameter is temporary, can be removed in later builds once bug fix
       -- is in place (http://forum.micasaverde.com/index.php?topic=1608.0)
       --
+	  veraFluxDebugLog("Starting veraFluxOnTimer function - readSettings")
       local staticTags, period, enable, debugMode, database, ip, port, username, passwd = readSettings(VF_PARENT_DEVICE)
+	  veraFluxDebugLog("veraFluxOnTimer function - luup.call_timer")
       luup.call_timer("veraFluxOnTimer", 1, tostring(period), "")
 
       --
