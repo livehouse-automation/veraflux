@@ -38,7 +38,7 @@ All values are sent to Influx on the polling period. In addition there are watch
    
 Known limitations in current beta:
 
-- http only
-- Username/Password for InfluxDB don't do anything yet.
-- Only way to change what Services/Values get logged to Influx is by editing the implementation file.
+- http only (see issue #1)
+- Username/Password for InfluxDB don't do anything yet (see issue #2)
+- Only way to change what Services/Values get logged to Influx is by editing the implementation file (see issue #3)
 - Logs contain cheesy references to Back to the Future.
