@@ -286,7 +286,7 @@ module("L_VeraFlux1", package.seeall)
 		return measurement
 	end
 	
-	local function processDevice(deviceId, d, svcsTbl)
+	local function processDevice(deviceId, d, svcsTbl, howTriggered)
 		-- prepare the line protocol for an individual device
 		--   * deviceId is the device ID number
 		--   * d is the device as an object
@@ -345,6 +345,8 @@ module("L_VeraFlux1", package.seeall)
 		lineProtocolDeviceTags = lineProtocolDeviceTags .. ",description=" .. sanitizeTagKeysAndValues(d.description)
 		-- "udn" tag:
 		lineProtocolDeviceTags = lineProtocolDeviceTags .. ",udn=" .. sanitizeTagKeysAndValues(d.udn)
+	        -- "input_method" tag:
+		lineProtocolDeviceTags = lineProtocolDeviceTags .. ",input_method=" .. sanitizeTagKeysAndValues(howTriggered or "unknown")
 		-- Finish tag section
 		
 		-- for each service...
@@ -366,7 +368,7 @@ module("L_VeraFlux1", package.seeall)
 					tag = sanitizeTagKeysAndValues(tag)
 					tag_value = sanitizeTagKeysAndValues(tag_value)
 					newLineProtocol = newLineProtocol .. "," .. tag .. "=" .. tag_value
-				end
+				end			
 				newLineProtocol = newLineProtocol .. " "
 				
 				-- fetch values
@@ -399,7 +401,7 @@ module("L_VeraFlux1", package.seeall)
 		-- loop through all devices
 		for deviceId,d in pairs(luup.devices) do
 			if not d.invisible then -- ignore "for internal use only" devices
-				LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, servicesTable)
+				LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, servicesTable, "polled")
 			end
 		end
 	end	
@@ -437,7 +439,7 @@ module("L_VeraFlux1", package.seeall)
 							st[serviceId]['tags'] = servicesTable[serviceId]['tags'] -- but we still want all the tags.
 							
 							-- process the device and generate line protocol
-							LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, st)
+							LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, st, "watched")
 							
 						end
 					end
