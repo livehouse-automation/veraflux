@@ -498,8 +498,8 @@ module("L_VeraFlux1", package.seeall)
 
       -- Do this deferred to avoid slowing down startup processes.
       --
-      luup.call_timer("veraFluxOnTimer", 1, "1", "")
-	  luup.call_timer("veraFluxSetupCallbacks", 1, "2", "")
+      luup.call_timer("VeraFlux.veraFluxOnTimer", 1, "1", "")
+	  luup.call_timer("VeraFlux.veraFluxSetupCallbacks", 1, "2", "")
       return true
     end
 
