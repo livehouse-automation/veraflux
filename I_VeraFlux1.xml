@@ -26,13 +26,16 @@
 		end
 
 		luup.log("VeraFlux plugin: library L_VeraFlux1 loaded")
+		-- define pointers(?) to the timer and callback functions in the library
 		veraFluxOnTimer = VeraFlux.veraFluxOnTimer
 		veraFluxSetupCallbacks = VeraFlux.veraFluxSetupCallbacks
 		return VeraFlux.main(lul_device)
 	end
   
   </functions>
-  <startup>startFluxCapacitor</startup>
+  <startup>startFluxCapacitor<
+  
+  /startup>
   <actionList>
     <action>
       <serviceId>urn:livehouse-automation:serviceId:VeraFlux1</serviceId>
