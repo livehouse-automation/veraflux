@@ -1,7 +1,13 @@
 # veraflux
 Vera Plugin to send device data to InfluxDB
 
-To use this plugin you'll need a working local InfluxDB instance and a database created with appropriate retention policy. Default name is "vera".
+To use this plugin you'll need a working local InfluxDB instance and a database created with appropriate retention policy. Default database name is "vera".
+
+To create the database within InfluxDB, launch the command line interface on your InfluxDB server with the command ```influx```. Create the database with the following command:
+
+```CREATE DATABASE vera WITH DURATION 365d NAME default-1-year```
+
+This will create a database named "vera", with a default retention policy of 1 year (365 days). Measurement points older than 1 year will be dropped automatically by InfluxDB. Feel free to lengthen/shorten the retention policy as your requirements dictate.
 
 Copy the Plugin files to Apps->Develop Apps->Luup Files. Then create a device using device file D_VeraFlux1.xml and implementation file I_VeraFlux1.xml then reload Luup.
 
