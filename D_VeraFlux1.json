@@ -1,0 +1,244 @@
+{
+    "default_icon": "https://cdn.shopify.com/s/files/1/0961/2526/files/LiveHouse_Plugin.png",
+	
+	"state_icons": [
+        {
+            "img": "https://cdn.shopify.com/s/files/1/0961/2526/files/LiveHouse_Plugin_Disable.png",
+            "conditions": [
+                {
+                    "service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                    "variable": "FluxCapacitor",
+                    "operator": "==",
+                    "value": 0
+                }
+            ]
+        },
+        {
+            "img": "https://cdn.shopify.com/s/files/1/0961/2526/files/LiveHouse_Plugin.png",
+            "conditions": [
+                {
+                    "service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                    "variable": "FluxCapacitor",
+                    "operator": "==",
+                    "value": 1
+                }
+            ]
+        }
+    ],
+	
+    "x": "2",
+    "y": "4",
+    "inScene": "1",
+    "DisplayStatus": {
+        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+        "Variable": "FluxCapacitor",
+        "MinValue": "0",
+        "MaxValue": "1"
+    },
+        "doc_url": {
+        "doc_language": 1,
+        "doc_manual": 1,
+        "doc_version": 1,
+        "doc_platform": 0,
+        "doc_page": "sensors"
+    },
+    "ToggleButton": 1,
+    "Tabs": [
+        {
+            "Label": {
+                "lang_tag": "tabname_control",
+                "text": "Control"
+            },
+            "Position": "0",
+            "TabType": "flash",
+            "SceneGroup":[
+                {
+                    "id": "1",
+                    "top": "0.5",
+                    "left": "0",
+                    "x": "2",
+                    "y": "1"
+                },
+                {
+                    "id": "2",
+                    "top": "2",
+                    "left": "0",
+                    "x": "2",
+                    "y": "1"
+                }
+            ],
+            "ControlGroup":[
+            {
+                "id": "1",
+                "isSingle": "1",
+                "scenegroup": "1"
+            },
+            {
+                "id": "2",
+                "isSingle": "1",
+                "scenegroup": "2"
+            }
+            ],
+    "Control": [
+                {
+                    "ControlGroup": "1",
+                    "ControlType": "button",
+                    "Label": {
+                        "lang_tag": "cmd_info",
+                        "text": "Info"
+                    },
+                    "Display": {
+                        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                        "Variable": "Debug",
+                        "Value": 0,
+                        "Top": 60,
+                        "Left": 50,
+                        "Width": 75,
+                        "Height": 20
+                    },
+                    "Command": {
+                        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                        "Action": "SetDebug",
+                        "Parameters": [
+                            {
+                                "Name": "newDebugValue",
+                                "Value": 0
+                            }
+                        ]
+                    },
+					"ControlCode": "debug_off"
+                },
+                {
+                    "ControlGroup": "1",
+                    "ControlType": "button",
+                    "Label": {
+                        "lang_tag": "cmd_debug",
+                        "text": "Debug"
+                    },
+                    "left": "1",
+                    "Display": {
+                        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                        "Variable": "Debug",
+                        "Value": 1,
+                        "Top": 60,
+                        "Left": 145,
+                        "Width": 75,
+                        "Height": 20
+                    },
+                    "Command": {
+                        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                        "Action": "SetDebug",
+                        "Parameters": [
+                            {
+                                "Name": "newDebugValue",
+                                "Value": 1
+                            }
+                        ]
+                    },
+					"ControlCode": "debug_on"
+                },                
+                {
+                    "ControlGroup": "2",
+                    "ControlType": "button",
+                    "Label": {
+                        "lang_tag": "cmd_disable",
+                        "text": "Disable"
+                    },
+                    "Display": {
+                        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                        "Variable": "FluxCapacitor",
+                        "Value": "0",
+                        "Top": 120,
+                        "Left": 50,
+                        "Width": 75,
+                        "Height": 20
+                    },
+                    "Command": {
+                        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                        "Action": "SetFluxCapacitor",
+                        "Parameters": [
+                            {
+                                "Name": "newFluxCapacitorValue",
+                                "Value": "0"
+                            }
+                        ]
+                    },
+					"ControlCode": "flux_off"
+                },
+                {
+                    "ControlGroup": "2",
+                    "ControlType": "button",
+                    "Label": {
+                        "lang_tag": "cmd_enable",
+                        "text": "Enable"
+                    },
+                    "left": "1",
+                    "Display": {
+                        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                        "Variable": "FluxCapacitor",
+                        "Value": "1",
+                        "Top": 120,
+                        "Left": 145,
+                        "Width": 75,
+                        "Height": 20
+                    },
+                    "Command": {
+                        "Service": "urn:livehouse-automation:serviceId:VeraFlux1",
+                        "Action": "SetFluxCapacitor",
+                        "Parameters": [
+                            {
+                                "Name": "newFluxCapacitorValue",
+                                "Value": "1"
+                            }
+                        ]
+                    },
+					"ControlCode": "flux_on"
+                }
+            ]
+        },
+        {
+            "Label": {
+                "lang_tag": "settings",
+                "text": "Settings"
+            },
+			"TopNavigationTab": "1",
+            "Position": "1",
+            "TabType": "javascript",
+            "ScriptName": "J_VeraFlux1.js",
+            "Function": "VeraFlux.VeraFluxSettings"
+        },
+        {
+            "Label": {
+                "lang_tag": "advanced",
+                "text": "Advanced"
+            },
+            "Position": "2",
+            "TabType": "javascript",
+            "ScriptName": "shared.js",
+            "Function": "advanced_device"
+        },
+        {
+            "Label": {
+                "lang_tag": "logs",
+                "text": "Logs"
+            },
+			"TopNavigationTab": "1",
+            "Position": "4",
+            "TabType": "javascript",
+            "ScriptName": "shared.js",
+            "Function": "device_logs"
+        },
+        {
+            "Label": {
+                "lang_tag": "notifications",
+                "text": "Notifications"
+            },
+			"TopNavigationTab": "1",
+            "Position": "5",
+            "TabType": "javascript",
+            "ScriptName": "shared.js",
+            "Function": "device_notifications"
+        }
+    ],
+    "device_type": "urn:schemas-livehouse-automation:device:VeraFlux:1"
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>5</minor>
+  </specVersion>
+  <device>
+    <deviceType>urn:schemas-livehouse-automation:device:VeraFlux:1</deviceType>
+    <staticJson>D_VeraFlux1.json</staticJson>
+    <friendlyName>VeraFlux Plugin</friendlyName>
+    <manufacturer>LiveHouse Automation</manufacturer>
+	<manufacturerURL>https://www.livehouseautomation.com.au</manufacturerURL>
+    <modelDescription>InfluxDB Data Relay</modelDescription>
+    <modelName>VeraFlux</modelName>
+    <protocol>cr</protocol>
+    <handleChildren>0</handleChildren>
+    <Category_Num>12</Category_Num>
+    <Subcategory_Num></Subcategory_Num>
+    <serviceList>
+      <service>
+        <serviceType>urn:schemas-livehouse-automation:service:VeraFlux:1</serviceType>
+        <serviceId>urn:livehouse-automation:serviceId:VeraFlux1</serviceId>
+        <SCPDURL>S_VeraFlux1.xml</SCPDURL>
+      </service>
+      <service>
+        <serviceType>urn:schemas-micasaverde-com:service:HaDevice:1</serviceType>
+        <serviceId>urn:micasaverde-com:serviceId:HaDevice1</serviceId>
+        <SCPDURL>S_HaDevice1.xml</SCPDURL>
+    </service>
+    </serviceList>
+    <implementationList>
+      <implementationFile>I_VeraFlux1.xml</implementationFile>
+    </implementationList>
+  </device>
+</root>
