@@ -9,7 +9,6 @@
   </settings>
   <functions>
 	local VERAFLUX_SID = "urn:livehouse-automation:serviceId:VeraFlux1"
-	local p
 	
 	function main(lul_device)
 		luup.log("VeraFlux plugin: loading library L_VeraFlux1 ...")
@@ -18,7 +17,7 @@
 		end
 
 		package.loaded.L_VeraFlux1 = nil
-		p = require("L_VeraFlux1")
+		VeraFlux = require("L_VeraFlux1")
 		if (package.loaded.L_VeraFlux1 == nil)
 		then
 			luup.log("VeraFlux plugin: plugin is not installed correctly. Library L_VeraFlux1 cannot be loaded.", 1)
@@ -28,7 +27,7 @@
 
 		luup.log("VeraFlux plugin: library L_VeraFlux1 loaded")
 
-		return p.main(lul_device)
+		return VeraFlux.main(lul_device)
 	end
   
   </functions>
