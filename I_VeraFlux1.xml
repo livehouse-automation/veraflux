@@ -33,9 +33,7 @@
 	end
   
   </functions>
-  <startup>startFluxCapacitor<
-  
-  /startup>
+  <startup>startFluxCapacitor</startup>
   <actionList>
     <action>
       <serviceId>urn:livehouse-automation:serviceId:VeraFlux1</serviceId>
