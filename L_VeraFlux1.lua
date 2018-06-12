@@ -400,15 +400,15 @@ local function getDeviceObjectByID(lul_device)
 	local deviceFound = false
 	local deviceObject = nil
 	for deviceId,d in pairs(luup.devices) do
-		if lul_device == deviceId then
+		if tostring(lul_device) == tostring(deviceId) then
 			deviceObject = d
 			deviceFound = true
 		end
-		if deviceFound then
+		if deviceFound == true then
 			break
 		end
 	end
-	if deviceFound then
+	if deviceFound == true then
 		return d
 	else
 		return nil
