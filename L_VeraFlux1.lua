@@ -297,7 +297,7 @@ local function sanitizeTagKeysAndValues(tag)
 	tag = string.gsub(tag, " ", "\\ ")
 	-- lastly, if the tag is "", then change to nil
 	if tag == "" then tag = 'nil' end
-	veraFluxDebugLog("sanitizeTagKeysAndValues: before='" .. tostring(tagBefore) .. "', after='" .. tostring(tag) .. "'")
+	-- veraFluxDebugLog("sanitizeTagKeysAndValues: before='" .. tostring(tagBefore) .. "', after='" .. tostring(tag) .. "'")
 	return tag
 end
 
@@ -311,7 +311,7 @@ local function sanitizeMeasurement(measurement)
 	measurement = string.gsub(measurement, ",", "\\,")
 	--  * spaces " " must be escaped:
 	measurement = string.gsub(measurement, " ", "\\ ")
-	veraFluxDebugLog("sanitizeMeasurement: before='" .. tostring(measurementBefore) .. "', after='" .. tostring(measurement) .. "'")
+	-- veraFluxDebugLog("sanitizeMeasurement: before='" .. tostring(measurementBefore) .. "', after='" .. tostring(measurement) .. "'")
 	return measurement
 end
 
