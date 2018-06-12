@@ -26,9 +26,10 @@
 		end
 
 		luup.log("VeraFlux plugin: library L_VeraFlux1 loaded")
-		-- define pointers(?) to the timer and callback functions in the library
+		-- define pointers to the timer and callback functions in the library
 		veraFluxOnTimer = VeraFlux.veraFluxOnTimer
 		veraFluxSetupCallbacks = VeraFlux.veraFluxSetupCallbacks
+		veraFluxWatchedVariableCallback = VeraFlux.veraFluxWatchedVariableCallback
 		return VeraFlux.main(lul_device)
 	end
   

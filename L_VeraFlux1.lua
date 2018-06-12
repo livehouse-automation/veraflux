@@ -378,7 +378,7 @@ local function processDevice(deviceId, d, svcsTbl, howTriggered)
 			if submitLineProtocol then
 				-- add to line protocol payload
 				newLineProtocol = sanitizeMeasurement(serviceId) .. lineProtocolDeviceTags .. newLineProtocol .. "\n"
-				veraFluxDebugLog("New Line Protocol: " .. newLineProtocol)
+				-- veraFluxDebugLog("New Line Protocol: " .. newLineProtocol)
 				PER_DEVICE_LINE_PROTOCOL = PER_DEVICE_LINE_PROTOCOL .. newLineProtocol
 			end
 		end
@@ -447,8 +447,11 @@ end
 
 function veraFluxSetupCallbacks()
 	-- check to see if the FluxCapacitor is charged before setting up callbacks
+	veraFluxDebugLog("veraFluxSetupCallbacks - Checking enabled status.")
+	local enable, tstamp = luup.variable_get(VERAFLUX_SID, "FluxCapacitor", VF_PARENT_DEVICE)	-- added to make sure the function runs correctly
 	if (enable == "1") then
 		-- loop through all devices
+		veraFluxDebugLog("veraFluxSetupCallbacks - setting up callbacks as plugin is enabled.")
 		for deviceId,d in pairs(luup.devices) do
 			if not d.invisible then -- ignore "for internal use only" devices
 				-- for each watched service...
@@ -493,8 +496,9 @@ function main(parentDevice)
 	
 	-- Do this deferred to avoid slowing down startup processes.
 	--
-	veraFluxDebugLog("main function - initialise OnTimer and Callbacks")
+	veraFluxDebugLog("main function - initialise OnTimer")
 	luup.call_timer("veraFluxOnTimer", 1, "1", "")
+	veraFluxDebugLog("main function - initialise Callbacks")
 	luup.call_timer("veraFluxSetupCallbacks", 1, "2", "")
 	return true
 end
