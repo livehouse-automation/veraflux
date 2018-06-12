@@ -135,6 +135,7 @@ http.TIMEOUT = 3
 
 luup.log("VeraFlux DEBUG: create VERAFLUX_LINE_PROTOCOL variable")
 VERAFLUX_LINE_PROTOCOL = ""
+local VERAFLUX_LINE_PROTOCOL_THRESHOLD = 50000 --bytes
 
 local function veraFluxLog(text)
 	local id = VF_PARENT_DEVICE or "unknown"
@@ -277,7 +278,11 @@ local function sendVeraFluxData(howCalled)
 		sink = ltn12.sink.table(response_body)
 	}
 	
-	veraFluxDebugLog("InfluxDB server replied: " .. code) 
+	veraFluxDebugLog("InfluxDB server replied: " .. code)
+	
+	if tostring(code) == "400" then
+		veraFluxDebugLog("InfluxDB reply: " .. response_body)
+	end
 	
 	-- reset line protocol variable to avoid memory leak
 	VERAFLUX_LINE_PROTOCOL = ""
@@ -434,6 +439,9 @@ local function addAllDeviceValues()
 				if luup.device_supports_service(serviceId, deviceId) then
 					VERAFLUX_LINE_PROTOCOL = VERAFLUX_LINE_PROTOCOL .. processDevice(deviceId, d, serviceId, "polled")
 					veraFluxDebugLog("addAllDeviceValues: VERAFLUX_LINE_PROTOCOL is now: " .. tostring(VERAFLUX_LINE_PROTOCOL:len()) .. " bytes")
+					if VERAFLUX_LINE_PROTOCOL:len() >= VERAFLUX_LINE_PROTOCOL_THRESHOLD then
+						sendVeraFluxData("addAllDeviceValues (>= VERAFLUX_LINE_PROTOCOL_THRESHOLD)")
+					end
 				end
 			end
 		end
