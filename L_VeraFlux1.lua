@@ -432,29 +432,19 @@ local function processDevice(deviceId, d, serviceId, howTriggered)
 	for i, field in ipairs(servicesTable[serviceId]['fields']) do
 		field_value, tstamp = luup.variable_get(serviceId, field, deviceId)
 		field = sanitizeTagKeysAndValues(field)
-		
-		-- temp debugging code
-		if deviceId == 1452 then
-			veraFluxDebugLog("DEBUGFORMIKE: field_value is: " .. tostring(field_value))
-			veraFluxDebugLog("DEBUGFORMIKE: field_value type: " .. tostring(type(field_value)))
-		end
-		-- end temp debugging code
-		
+				
 		-- ensure field value is valid prior to adding
 		if field_value ~= nil then
 			-- sanitize field values - remove whitespace
 			field_value = string.gsub(field_value, "%s+", "")
-			-- temp debugging code
-			if deviceId == 1452 then
-				veraFluxDebugLog("DEBUGFORMIKE: field_value is: " .. tostring(field_value))
-				veraFluxDebugLog("DEBUGFORMIKE: field_value type: " .. tostring(type(field_value)))
+			-- ensure field value contains data (ignore "")
+			if field_value ~= "" then
+				-- build line protocol
+				if not firstField then newLineProtocol = newLineProtocol .. "," end
+				newLineProtocol = newLineProtocol .. field .. "=" .. tostring(field_value)
+				submitLineProtocol = true
+				firstField = false
 			end
-			-- end temp debugging code
-			-- build line protocol
-			if not firstField then newLineProtocol = newLineProtocol .. "," end
-			newLineProtocol = newLineProtocol .. field .. "=" .. tostring(field_value)
-			submitLineProtocol = true
-			firstField = false
 		end
 	end
 	
