@@ -436,12 +436,21 @@ local function processDevice(deviceId, d, serviceId, howTriggered)
 		-- temp debugging code
 		if deviceId == 1452 then
 			veraFluxDebugLog("DEBUGFORMIKE: field_value is: " .. tostring(field_value))
-			veraFluxDebugLog("DEBUGFORMIKE: field_value type: " .. tostring(type(field_value))
+			veraFluxDebugLog("DEBUGFORMIKE: field_value type: " .. tostring(type(field_value)))
 		end
 		-- end temp debugging code
 		
 		-- ensure field value is valid prior to adding
 		if field_value ~= nil then
+			-- sanitize field values - remove whitespace
+			field_value = string.gsub(field_value, "%s+", "")
+			-- temp debugging code
+			if deviceId == 1452 then
+				veraFluxDebugLog("DEBUGFORMIKE: field_value is: " .. tostring(field_value))
+				veraFluxDebugLog("DEBUGFORMIKE: field_value type: " .. tostring(type(field_value)))
+			end
+			-- end temp debugging code
+			-- build line protocol
 			if not firstField then newLineProtocol = newLineProtocol .. "," end
 			newLineProtocol = newLineProtocol .. field .. "=" .. tostring(field_value)
 			submitLineProtocol = true
