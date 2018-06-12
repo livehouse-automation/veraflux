@@ -133,7 +133,7 @@ local url   = require("socket.url")
 local ltn12 = require("ltn12")
 http.TIMEOUT = 3
 
-local LINE_PROTOCOL = ""
+VERAFLUX_LINE_PROTOCOL = ""
 
 local function veraFluxLog(text)
 	local id = VF_PARENT_DEVICE or "unknown"
@@ -224,7 +224,7 @@ end
 
 
 local function sendVeraFluxData()
-	veraFluxDebugLog("Payload is: " .. LINE_PROTOCOL) 
+	veraFluxDebugLog("Payload is: " .. VERAFLUX_LINE_PROTOCOL) 
 	veraFluxDebugLog("Submitting payload to InfluxDB at: " .. INFLUX_URL) 
 	
 	-- perform http request
@@ -234,10 +234,10 @@ local function sendVeraFluxData()
 		method = "POST",
 		headers = {
 			["Content-Type"] = "text/plain",
-			["Content-Length"] = LINE_PROTOCOL:len()
+			["Content-Length"] = VERAFLUX_LINE_PROTOCOL:len()
 		},
 		-- include line protocol payload
-		source = ltn12.source.string(LINE_PROTOCOL),
+		source = ltn12.source.string(VERAFLUX_LINE_PROTOCOL),
 		-- get response body
 		sink = ltn12.sink.table(response_body)
 	}
@@ -245,7 +245,7 @@ local function sendVeraFluxData()
 	veraFluxDebugLog("InfluxDB server replied: " .. code) 
 	
 	-- reset line protocol variable to avoid memory leak
-	LINE_PROTOCOL = ""
+	VERAFLUX_LINE_PROTOCOL = ""
 end
 
 local function sanitizeTagKeysAndValues(tag)
@@ -391,7 +391,7 @@ local function addAllDeviceValues()
 	-- loop through all devices
 	for deviceId,d in pairs(luup.devices) do
 		if not d.invisible then -- ignore "for internal use only" devices
-			LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, servicesTable, "polled")
+			VERAFLUX_LINE_PROTOCOL = VERAFLUX_LINE_PROTOCOL .. processDevice(deviceId, d, servicesTable, "polled")
 		end
 	end
 end
@@ -430,7 +430,7 @@ function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, 
 						st[serviceId]['tags'] = servicesTable[serviceId]['tags'] -- but we still want all the tags.
 						
 						-- process the device and generate line protocol
-						LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, st, "watched")
+						VERAFLUX_LINE_PROTOCOL = VERAFLUX_LINE_PROTOCOL .. processDevice(deviceId, d, st, "watched")
 						
 					end
 				end
