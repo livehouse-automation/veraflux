@@ -439,7 +439,7 @@ function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, 
 		st[lul_service]['tags'] = servicesTable[lul_service]['tags'] -- but we still want all the tags.
 		
 		-- process the device and generate line protocol
-		lul_device, d = getDeviceObjectByID(lul_device)
+		d = getDeviceObjectByID(lul_device)
 		LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(lul_device, d, st, "watched")
 		
 		-- submit line protocol
