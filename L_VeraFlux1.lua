@@ -256,9 +256,10 @@ local function readSettings(parentDevice)
 end
 
 
-local function sendVeraFluxData()
-	veraFluxDebugLog("sendVeraFluxData called")
-	veraFluxDebugLog("sendVeraFluxData: Payload is: " .. LINE_PROTOCOL) 
+local function sendVeraFluxData(howCalled)
+	veraFluxDebugLog("sendVeraFluxData called via " .. howCalled)
+	veraFluxDebugLog("sendVeraFluxData: Payload length: " .. tostring(LINE_PROTOCOL:len()))
+	veraFluxDebugLog("sendVeraFluxData: Payload is: '" .. LINE_PROTOCOL .. "'")
 	veraFluxDebugLog("sendVeraFluxData: Submitting payload to InfluxDB at: " .. INFLUX_URL) 
 	
 	-- perform http request
@@ -431,6 +432,7 @@ local function addAllDeviceValues()
 				-- check if the current device supports the service
 				if luup.device_supports_service(serviceId, deviceId) then
 					LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, serviceId, "polled")
+					veraFluxDebugLog("addAllDeviceValues: LINE_PROTOCOL is now: '" .. tostring(LINE_PROTOCOL) .. "'")
 				end
 			end
 		end
@@ -476,9 +478,10 @@ function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, 
 		-- process the device and generate line protocol
 		d = getDeviceObjectByID(lul_device)
 		LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(lul_device, d, lul_service, "watched")
+		veraFluxDebugLog("veraFluxWatchedVariableCallback: LINE_PROTOCOL is now: '" .. tostring(LINE_PROTOCOL) .. "'")
 		
 		-- submit line protocol
-		sendVeraFluxData() -- send all generated line protocol to influx
+		sendVeraFluxData("veraFluxWatchedVariableCallback") -- send all generated line protocol to influx
 		veraFluxDebugLog("veraFluxWatchedVariableCallback: Finished with device " .. tostring(lul_device) .. ", service " .. tostring(lul_service) .. ", variable " .. lul_variable)
 	else
 		veraFluxDebugLog("LiveHouseInflux: watchedVariableCallBack: Plugin not enabled, discarding changed value for " .. tostring(lul_device))
@@ -576,7 +579,7 @@ function veraFluxOnTimer()
 		
 		veraFluxDebugLog("STARTING SCHEDULED POLLING")
 		addAllDeviceValues() -- cycle through all non-invisible devices and collect values for supported devices
-		sendVeraFluxData() -- send all generated line protocol to influx
+		sendVeraFluxData("veraFluxOnTimer") -- send all generated line protocol to influx
 		veraFluxDebugLog("FINISHED SCHEDULED POLLING") -- may want to comment this out when this script is working	
 		veraFluxLog("Flux Capacitor Online, 1.21 Gigawatts available.")
 	else
