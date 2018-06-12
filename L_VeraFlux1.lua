@@ -396,6 +396,25 @@ local function addAllDeviceValues()
 	end
 end
 
+local function getDeviceObjectByID(lul_device)
+	local deviceFound = false
+	local deviceObject = nil
+	for deviceId,d in pairs(luup.devices) do
+		if lul_device == deviceId then
+			deviceObject = d
+			deviceFound = true
+		end
+		if deviceFound then
+			break
+		end
+	end
+	if deviceFound then
+		return d
+	else
+		return nil
+	end
+end
+
 
 function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, lul_value_old, lul_value_new)
 	-- function to be registered as a call back for luup.variable_watch
@@ -410,32 +429,19 @@ function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, 
 	
 	-- if plugin is enabled then continue
 	if (enable == "1") then
+						
+		veraFluxDebugLog("LiveHouseInflux: watchedVariableCallBack: Fetching data for device " .. tostring(lul_device) .. ", service " .. tostring(lul_service) .. ", variable " .. lul_variable)
 		
-		-- loop through all devices to find the changed device
-		for deviceId,d in pairs(luup.devices) do
-			-- if we've found the watched device...
-			if (deviceId == lul_device) then
-				
-				-- loop through services table to find the watched service
-				for serviceId, serviceTable in pairs(servicesTable) do
-					-- if we've found the watched service...
-					if (lul_service == serviceId) then
-						
-						veraFluxDebugLog("LiveHouseInflux: watchedVariableCallBack: Fetching data for device " .. tostring(deviceId) .. ", service " .. tostring(serviceId) .. ", variable " .. lul_variable)
-						
-						-- prepare a servicesTable-type dict to pass to processDevice
-						local st = {}
-						st[serviceId] = {}
-						st[serviceId]['fields'] = {tostring(lul_variable)}      -- we're only interested in the changed variable...
-						st[serviceId]['tags'] = servicesTable[serviceId]['tags'] -- but we still want all the tags.
-						
-						-- process the device and generate line protocol
-						LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, st, "watched")
-						
-					end
-				end
-			end
-		end
+		-- prepare a servicesTable-type dict to pass to processDevice
+		local st = {}
+		st[lul_service] = {}
+		st[lul_service]['fields'] = {tostring(lul_variable)}         -- we're only interested in the changed variable...
+		st[lul_service]['tags'] = servicesTable[lul_service]['tags'] -- but we still want all the tags.
+		
+		-- process the device and generate line protocol
+		lul_device, d = getDeviceObjectByID(lul_device)
+		LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(lul_device, d, st, "watched")
+		
 		-- submit line protocol
 		sendVeraFluxData() -- send all generated line protocol to influx
 		veraFluxDebugLog("veraFluxWatchedVariableCallback: Finished with device " .. tostring(lul_device) .. ", service " .. tostring(lul_service) .. ", variable " .. lul_variable)
