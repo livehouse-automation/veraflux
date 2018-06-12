@@ -400,6 +400,7 @@ local function getDeviceObjectByID(lul_device)
 	local deviceFound = false
 	local deviceObject = nil
 	for deviceId,d in pairs(luup.devices) do
+		-- TODO: try removing tostring functions from if statement below. Shouldn't be needed. Added for troubleshooting.
 		if tostring(lul_device) == tostring(deviceId) then
 			deviceObject = d
 			deviceFound = true
