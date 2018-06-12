@@ -150,6 +150,16 @@ end
 -- Initializes variables if none were found in config
 --
 local function initSettings(staticTags, period, enable, debugMode, database, ip, port, username, passwd)
+	veraFluxDebugLog("initSettings called: " .. 
+		"staticTags=" .. tostring(staticTags) .. ", " ..
+		"period=" .. tostring(period) .. ", " ..
+		"enable=" .. tostring(enable) .. ", " ..
+		"debugMode=" .. tostring(debugMode) .. ", " ..
+		"database=" .. tostring(database) .. ", " ..
+		"ip=" .. tostring(ip) .. ", " ..
+		"port=" .. tostring(port) .. ", " ..
+		"username=" .. tostring(username) .. ", " ..
+		"passwd=" .. tostring(passwd))
 	--
 	-- Create a fallback delay if no parameters are given    
 	--
@@ -192,11 +202,23 @@ local function initSettings(staticTags, period, enable, debugMode, database, ip,
 
 	luup.task("Please restart Luup to initialize the plugin.", 1, "VeraFlux", -1)
 	
+	veraFluxDebugLog("initSettings end: return" .. 
+		" staticTags=" .. tostring(staticTags) ..
+	        ", period=" .. tostring(period) ..
+		", enable=" .. tostring(enable) ..
+		", debugMode=" .. tostring(debugMode) ..
+		", database=" .. tostring(database) ..
+		", ip=" .. tostring(ip) ..
+		", port=" .. tostring(port) ..
+		", username=" .. tostring(username) ..
+		", passwd=" .. tostring(passwd))
 	return staticTags, period, enable, debugMode, database, ip, port, username, passwd
 end
 
 
 local function readSettings(parentDevice)
+	veraFluxDebugLog("readSettings called: " .. 
+		"parentDevice=" .. tostring(parentDevice))
 	--
 	-- Get local address and delay between repetition from configuration
 	--
@@ -219,13 +241,24 @@ local function readSettings(parentDevice)
 	INFLUX_URL = "http://" .. ip .. ":" .. port .. "/write?db=" .. database
 	VF_DEBUG_MODE = debugMode
 	
+	veraFluxDebugLog("readSettings end: return" .. 
+		" staticTags=" .. tostring(staticTags) ..
+	        ", period=" .. tostring(period) ..
+		", enable=" .. tostring(enable) ..
+		", debugMode=" .. tostring(debugMode) ..
+		", database=" .. tostring(database) ..
+		", ip=" .. tostring(ip) ..
+		", port=" .. tostring(port) ..
+		", username=" .. tostring(username) ..
+		", passwd=" .. tostring(passwd))
 	return staticTags, period, enable, debugMode, database, ip, port, username, passwd
 end
 
 
 local function sendVeraFluxData()
-	veraFluxDebugLog("Payload is: " .. LINE_PROTOCOL) 
-	veraFluxDebugLog("Submitting payload to InfluxDB at: " .. INFLUX_URL) 
+	veraFluxDebugLog("sendVeraFluxData called")
+	veraFluxDebugLog("sendVeraFluxData: Payload is: " .. LINE_PROTOCOL) 
+	veraFluxDebugLog("sendVeraFluxData: Submitting payload to InfluxDB at: " .. INFLUX_URL) 
 	
 	-- perform http request
 	local response_body = { }
@@ -246,9 +279,11 @@ local function sendVeraFluxData()
 	
 	-- reset line protocol variable to avoid memory leak
 	LINE_PROTOCOL = ""
+	veraFluxDebugLog("sendVeraFluxData end")
 end
 
 local function sanitizeTagKeysAndValues(tag)
+	tagBefore = tag
 	-- firstly convert to string
 	tag = tostring(tag)
 	-- InfluxDB line protocol dictates:
@@ -260,10 +295,12 @@ local function sanitizeTagKeysAndValues(tag)
 	tag = string.gsub(tag, " ", "\\ ")
 	-- lastly, if the tag is "", then change to nil
 	if tag == "" then tag = 'nil' end
+	veraFluxDebugLog("sanitizeTagKeysAndValues: before='" .. tostring(tagBefore) .. "', after='" .. tostring(tag) .. "'")
 	return tag
 end
 
 local function sanitizeMeasurement(measurement)
+	measurementBefore = measurement
 	-- firstly convert to string
 	measurement = tostring(measurement)
 	-- InfluxDB line protocol dictates:
@@ -271,10 +308,12 @@ local function sanitizeMeasurement(measurement)
 	measurement = string.gsub(measurement, ",", "\\,")
 	--  * spaces " " must be escaped:
 	measurement = string.gsub(measurement, " ", "\\ ")
+	veraFluxDebugLog("sanitizeMeasurement: before='" .. tostring(measurementBefore) .. "', after='" .. tostring(measurement) .. "'")
 	return measurement
 end
 
 local function processDevice(deviceId, d, svcsTbl, howTriggered)
+	veraFluxDebugLog("processDevice called: deviceId=" .. tostring(deviceId) .. ", d=" .. tostring(d) .. ", svcsTbl=" .. tostring(svcsTbl) .. ", howTriggered=" .. tostring(howTriggered))
 	-- prepare the line protocol for an individual device
 	--   * deviceId is the device ID number
 	--   * d is the device as an object
@@ -284,7 +323,6 @@ local function processDevice(deviceId, d, svcsTbl, howTriggered)
 	
 	local lineProtocolDeviceTags = ""
 	
-	veraFluxDebugLog("Processing device " .. tostring(deviceId) .. ": " .. tostring(d.device_type)) 
 	--
 	-- build the line protocol
 	-- 
@@ -383,20 +421,24 @@ local function processDevice(deviceId, d, svcsTbl, howTriggered)
 			end
 		end
 	end
+	veraFluxDebugLog("processDevice end: return PER_DEVICE_LINE_PROTOCOL=" .. tostring(PER_DEVICE_LINE_PROTOCOL))
 	return PER_DEVICE_LINE_PROTOCOL
 end
 
 
 local function addAllDeviceValues()
+	veraFluxDebugLog("addAllDeviceValues called")
 	-- loop through all devices
 	for deviceId,d in pairs(luup.devices) do
 		if not d.invisible then -- ignore "for internal use only" devices
 			LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, servicesTable, "polled")
 		end
 	end
+	veraFluxDebugLog("addAllDeviceValues end")
 end
 
 local function getDeviceObjectByID(lul_device)
+	veraFluxDebugLog("getDeviceObjectByID called: lul_device=" .. tostring(lul_device))
 	local deviceFound = false
 	local deviceObject = nil
 	for deviceId,d in pairs(luup.devices) do
@@ -408,17 +450,18 @@ local function getDeviceObjectByID(lul_device)
 			break
 		end
 	end
+	veraFluxDebugLog("getDeviceObjectByID end: return deviceObject=" .. tostring(deviceObject))
 	return deviceObject
 end
 
 
 function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, lul_value_old, lul_value_new)
+	veraFluxDebugLog("veraFluxWatchedVariableCallback called: lul_device='" .. tostring(lul_device) .. "', lul_service='" .. tostring(lul_service) .. "', lul_variable='" .. tostring(lul_variable) .. "', lul_value_old='" .. tostring(lul_value_old) .. "', lul_value_new='" .. tostring(lul_value_new))
 	-- function to be registered as a call back for luup.variable_watch
 	--   * lul_device is a number that is the device ID
 	--   * lul_service is the service ID (string?)
 	--   * lul_variable is the variable name (string?)
 	--   * lul_value_old / lul_value_new are the values
-	veraFluxDebugLog("veraFluxWatchedVariableCallback: Called with lul_device='" .. tostring(lul_device) .. "', lul_service='" .. tostring(lul_service) .. "', lul_variable='" .. tostring(lul_variable) .. "', lul_value_old='" .. tostring(lul_value_old) .. "', lul_value_new='" .. tostring(lul_value_new))
 	
 	--  determine if plugin is enabled
 	local enable, tstamp = luup.variable_get(VERAFLUX_SID, "FluxCapacitor", VF_PARENT_DEVICE)
@@ -444,16 +487,17 @@ function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, 
 	else
 		veraFluxDebugLog("LiveHouseInflux: watchedVariableCallBack: Plugin not enabled, discarding changed value for " .. tostring(lul_device))
 	end
+	veraFluxDebugLog("veraFluxWatchedVariableCallback end")
 end
 
 
 function veraFluxSetupCallbacks()
 	-- check to see if the FluxCapacitor is charged before setting up callbacks
-	veraFluxDebugLog("veraFluxSetupCallbacks - Checking enabled status.")
+	veraFluxDebugLog("veraFluxSetupCallbacks called")
 	local enable, tstamp = luup.variable_get(VERAFLUX_SID, "FluxCapacitor", VF_PARENT_DEVICE)	-- added to make sure the function runs correctly
 	if (enable == "1") then
 		-- loop through all devices
-		veraFluxDebugLog("veraFluxSetupCallbacks - setting up callbacks as plugin is enabled.")
+		veraFluxDebugLog("veraFluxSetupCallbacks: setting up callbacks as plugin is enabled.")
 		for deviceId,d in pairs(luup.devices) do
 			if not d.invisible then -- ignore "for internal use only" devices
 				-- for each watched service...
@@ -471,6 +515,7 @@ function veraFluxSetupCallbacks()
 			end
 		end
 	end
+	veraFluxDebugLog("veraFluxSetupCallbacks end")
 end
 
 
@@ -478,6 +523,7 @@ end
 -- The main function is used for starting up device
 --
 function main(parentDevice)
+	veraFluxDebugLog("main called: parentDevice=" .. tostring(parentDevice))
 	--
 	-- Note these are "pass-by-Global" values that veraFluxOnTimer will later use.
 	--
@@ -493,6 +539,7 @@ function main(parentDevice)
 	if (ip == nil or period == nil or database == nil or port == nil) then
 		veraFluxLog("That ended badly.")
 		luup.set_failure(true, parentDevice)
+		veraFluxDebugLog("main end return false")
 		return false
 	end
 	
@@ -502,6 +549,7 @@ function main(parentDevice)
 	luup.call_timer("veraFluxOnTimer", 1, "1", "")
 	veraFluxDebugLog("main function - initialise Callbacks")
 	luup.call_timer("veraFluxSetupCallbacks", 1, "2", "")
+	veraFluxDebugLog("main end return true")
 	return true
 end
 
@@ -510,15 +558,14 @@ end
 -- triggered by a timer
 --
 function veraFluxOnTimer()
+	veraFluxDebugLog("veraFluxOnTimer called")
 	--
 	-- Reset the timer at the beginning, just in case the subsequent code fails.
 	--
 	-- The last parameter is temporary, can be removed in later builds once bug fix
 	-- is in place (http://forum.micasaverde.com/index.php?topic=1608.0)
 	--
-	veraFluxDebugLog("Starting veraFluxOnTimer function - readSettings")
 	local staticTags, period, enable, debugMode, database, ip, port, username, passwd = readSettings(VF_PARENT_DEVICE)
-	veraFluxDebugLog("veraFluxOnTimer function - luup.call_timer")
 	luup.call_timer("veraFluxOnTimer", 1, tostring(period), "")
 	
 	--
@@ -539,4 +586,5 @@ function veraFluxOnTimer()
 	else
 		veraFluxLog("Flux Capacitor Offline. Insert banana skin and beer into Mr. Fusion canister." .. (enable or "No value"))
 	end
+	veraFluxDebugLog("veraFluxOnTimer end")
 end
