@@ -291,6 +291,7 @@ local function sendVeraFluxData(howCalled)
 	veraFluxDebugLog("sendVeraFluxData: Payload length: " .. tostring(VERAFLUX_LINE_PROTOCOL:len()))
 	--veraFluxDebugLog("sendVeraFluxData: Payload is: '" .. VERAFLUX_LINE_PROTOCOL .. "'")
 	--veraFluxDebugLog("sendVeraFluxData: Submitting payload to InfluxDB at: " .. INFLUX_URL) 
+
 	
 	-- perform http request
 	local response_body = { }
@@ -318,6 +319,7 @@ local function sendVeraFluxData(howCalled)
 	VERAFLUX_LINE_PROTOCOL = ""
 	VERAFLUX_LINE_PROTOCOL_LINES = 0
 	--veraFluxDebugLog("sendVeraFluxData end")
+
 end
 
 
@@ -485,6 +487,7 @@ local function addAllDeviceValues()
 					end
 				end
 			end
+
 		end
 	end
 	--veraFluxDebugLog("addAllDeviceValues end")
