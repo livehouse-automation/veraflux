@@ -433,6 +433,13 @@ local function processDevice(deviceId, d, serviceId, howTriggered)
 		field_value, tstamp = luup.variable_get(serviceId, field, deviceId)
 		field = sanitizeTagKeysAndValues(field)
 		
+		-- temp debugging code
+		if deviceId == 1452 then
+			veraFluxDebugLog("DEBUGFORMIKE: field_value is: " .. tostring(field_value))
+			veraFluxDebugLog("DEBUGFORMIKE: field_value type: " .. tostring(type(field_value))
+		end
+		-- end temp debugging code
+		
 		-- ensure field value is valid prior to adding
 		if field_value ~= nil then
 			if not firstField then newLineProtocol = newLineProtocol .. "," end
