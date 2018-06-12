@@ -310,7 +310,7 @@ local function sendVeraFluxData(howCalled)
 	if tostring(code) ~= "204" then
 		veraFluxLog("ERROR: InfluxDB server replied: " .. code .. ", expected 204")
 		veraFluxLog("ERROR: InfluxDB reply: " .. table_to_string(response_body))
-	else:
+	else
 		veraFluxDebugLog("InfluxDB server replied: " .. code)
 	end
 	
