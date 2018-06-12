@@ -133,8 +133,8 @@ local url   = require("socket.url")
 local ltn12 = require("ltn12")
 http.TIMEOUT = 3
 
-luup.log("VeraFlux DEBUG: create local LINE_PROTOCOL variable")
-local LINE_PROTOCOL = ""
+luup.log("VeraFlux DEBUG: create VERAFLUX_LINE_PROTOCOL variable")
+VERAFLUX_LINE_PROTOCOL = ""
 
 local function veraFluxLog(text)
 	local id = VF_PARENT_DEVICE or "unknown"
@@ -258,8 +258,8 @@ end
 
 local function sendVeraFluxData(howCalled)
 	veraFluxDebugLog("sendVeraFluxData called via " .. howCalled)
-	veraFluxDebugLog("sendVeraFluxData: Payload length: " .. tostring(LINE_PROTOCOL:len()))
-	veraFluxDebugLog("sendVeraFluxData: Payload is: '" .. LINE_PROTOCOL .. "'")
+	veraFluxDebugLog("sendVeraFluxData: Payload length: " .. tostring(VERAFLUX_LINE_PROTOCOL:len()))
+	--veraFluxDebugLog("sendVeraFluxData: Payload is: '" .. VERAFLUX_LINE_PROTOCOL .. "'")
 	veraFluxDebugLog("sendVeraFluxData: Submitting payload to InfluxDB at: " .. INFLUX_URL) 
 	
 	-- perform http request
@@ -269,10 +269,10 @@ local function sendVeraFluxData(howCalled)
 		method = "POST",
 		headers = {
 			["Content-Type"] = "text/plain",
-			["Content-Length"] = LINE_PROTOCOL:len()
+			["Content-Length"] = VERAFLUX_LINE_PROTOCOL:len()
 		},
 		-- include line protocol payload
-		source = ltn12.source.string(LINE_PROTOCOL),
+		source = ltn12.source.string(VERAFLUX_LINE_PROTOCOL),
 		-- get response body
 		sink = ltn12.sink.table(response_body)
 	}
@@ -280,7 +280,7 @@ local function sendVeraFluxData(howCalled)
 	veraFluxDebugLog("InfluxDB server replied: " .. code) 
 	
 	-- reset line protocol variable to avoid memory leak
-	LINE_PROTOCOL = ""
+	VERAFLUX_LINE_PROTOCOL = ""
 	veraFluxDebugLog("sendVeraFluxData end")
 end
 
@@ -417,7 +417,8 @@ local function processDevice(deviceId, d, serviceId, howTriggered)
 		-- veraFluxDebugLog("New Line Protocol: " .. newLineProtocol)
 		PER_DEVICE_LINE_PROTOCOL = PER_DEVICE_LINE_PROTOCOL .. newLineProtocol
 	end
-	veraFluxDebugLog("processDevice end: return PER_DEVICE_LINE_PROTOCOL=" .. tostring(PER_DEVICE_LINE_PROTOCOL))
+	-- veraFluxDebugLog("processDevice end: return PER_DEVICE_LINE_PROTOCOL=" .. tostring(PER_DEVICE_LINE_PROTOCOL))
+	veraFluxDebugLog("processDevice end")
 	return PER_DEVICE_LINE_PROTOCOL
 end
 
@@ -431,8 +432,8 @@ local function addAllDeviceValues()
 			for serviceId, serviceTable in pairs(servicesTable) do			
 				-- check if the current device supports the service
 				if luup.device_supports_service(serviceId, deviceId) then
-					LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, serviceId, "polled")
-					veraFluxDebugLog("addAllDeviceValues: LINE_PROTOCOL is now: '" .. tostring(LINE_PROTOCOL) .. "'")
+					VERAFLUX_LINE_PROTOCOL = VERAFLUX_LINE_PROTOCOL .. processDevice(deviceId, d, serviceId, "polled")
+					veraFluxDebugLog("addAllDeviceValues: VERAFLUX_LINE_PROTOCOL is now: " .. tostring(VERAFLUX_LINE_PROTOCOL:len()) .. " bytes")
 				end
 			end
 		end
@@ -477,8 +478,8 @@ function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, 
 		
 		-- process the device and generate line protocol
 		d = getDeviceObjectByID(lul_device)
-		LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(lul_device, d, lul_service, "watched")
-		veraFluxDebugLog("veraFluxWatchedVariableCallback: LINE_PROTOCOL is now: '" .. tostring(LINE_PROTOCOL) .. "'")
+		VERAFLUX_LINE_PROTOCOL = VERAFLUX_LINE_PROTOCOL .. processDevice(lul_device, d, lul_service, "watched")
+		veraFluxDebugLog("veraFluxWatchedVariableCallback: VERAFLUX_LINE_PROTOCOL is now: " .. tostring(VERAFLUX_LINE_PROTOCOL:len()) .. " bytes")
 		
 		-- submit line protocol
 		sendVeraFluxData("veraFluxWatchedVariableCallback") -- send all generated line protocol to influx
