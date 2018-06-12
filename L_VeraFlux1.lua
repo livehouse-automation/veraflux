@@ -133,6 +133,7 @@ local url   = require("socket.url")
 local ltn12 = require("ltn12")
 http.TIMEOUT = 3
 
+luup.log("VeraFlux DEBUG: create local LINE_PROTOCOL variable")
 local LINE_PROTOCOL = ""
 
 local function veraFluxLog(text)
@@ -282,6 +283,7 @@ local function sendVeraFluxData()
 	veraFluxDebugLog("sendVeraFluxData end")
 end
 
+
 local function sanitizeTagKeysAndValues(tag)
 	tagBefore = tag
 	-- firstly convert to string
@@ -299,6 +301,7 @@ local function sanitizeTagKeysAndValues(tag)
 	return tag
 end
 
+
 local function sanitizeMeasurement(measurement)
 	measurementBefore = measurement
 	-- firstly convert to string
@@ -312,7 +315,7 @@ local function sanitizeMeasurement(measurement)
 	return measurement
 end
 
-local function processDevice(deviceId, d, svcsTbl, howTriggered)
+local function processDevice(deviceId, d, svcsTbl, serviceId, howTriggered)
 	veraFluxDebugLog("processDevice called: deviceId=" .. tostring(deviceId) .. ", d=" .. tostring(d) .. ", svcsTbl=" .. tostring(svcsTbl) .. ", howTriggered=" .. tostring(howTriggered))
 	-- prepare the line protocol for an individual device
 	--   * deviceId is the device ID number
@@ -376,50 +379,42 @@ local function processDevice(deviceId, d, svcsTbl, howTriggered)
 	lineProtocolDeviceTags = lineProtocolDeviceTags .. ",input_method=" .. sanitizeTagKeysAndValues(howTriggered or "unknown")
 	-- Finish tag section
 	
-	-- for each service...
-	for serviceId, serviceTable in pairs(svcsTbl) do
+	-- prep variable to hold additional line protocol
+	local newLineProtocol = ""
+	-- prep variable to use to signify whether or not to put a comma before each successive field
+	local firstField = true
+	-- prep variable to determine whether we submit line protocol or not
+	local submitLineProtocol = false
+	
+	-- fetch tags
+	for i, tag in ipairs(svcsTbl[serviceId]['tags']) do
+		tag_value, tstamp = luup.variable_get(serviceId, tag, deviceId)
+		tag = sanitizeTagKeysAndValues(tag)
+		tag_value = sanitizeTagKeysAndValues(tag_value)
+		newLineProtocol = newLineProtocol .. "," .. tag .. "=" .. tag_value
+	end
+	newLineProtocol = newLineProtocol .. " "
+	
+	-- fetch values
+	for i, field in ipairs(svcsTbl[serviceId]['fields']) do
+		field_value, tstamp = luup.variable_get(serviceId, field, deviceId)
+		field = sanitizeTagKeysAndValues(field)
 		
-		-- check if the current device supports the service
-		if luup.device_supports_service(serviceId, deviceId) then
-			
-			-- prep variable to hold additional line protocol
-			local newLineProtocol = ""
-			-- prep variable to use to signify whether or not to put a comma before each successive field
-			local firstField = true
-			-- prep variable to determine whether we submit line protocol or not
-			local submitLineProtocol = false
-			
-			-- fetch tags
-			for i, tag in ipairs(svcsTbl[serviceId]['tags']) do
-				tag_value, tstamp = luup.variable_get(serviceId, tag, deviceId)
-				tag = sanitizeTagKeysAndValues(tag)
-				tag_value = sanitizeTagKeysAndValues(tag_value)
-				newLineProtocol = newLineProtocol .. "," .. tag .. "=" .. tag_value
-			end
-			newLineProtocol = newLineProtocol .. " "
-			
-			-- fetch values
-			for i, field in ipairs(svcsTbl[serviceId]['fields']) do
-				field_value, tstamp = luup.variable_get(serviceId, field, deviceId)
-				field = sanitizeTagKeysAndValues(field)
-				
-				-- ensure field value is valid prior to adding
-				if field_value ~= nil then
-					if not firstField then newLineProtocol = newLineProtocol .. "," end
-					newLineProtocol = newLineProtocol .. field .. "=" .. tostring(field_value)
-					submitLineProtocol = true
-					firstField = false
-				end
-			end
-			
-			-- if we've retrieved at least one valid field value, then we should have valid line protocol
-			if submitLineProtocol then
-				-- add to line protocol payload
-				newLineProtocol = sanitizeMeasurement(serviceId) .. lineProtocolDeviceTags .. newLineProtocol .. "\n"
-				-- veraFluxDebugLog("New Line Protocol: " .. newLineProtocol)
-				PER_DEVICE_LINE_PROTOCOL = PER_DEVICE_LINE_PROTOCOL .. newLineProtocol
-			end
+		-- ensure field value is valid prior to adding
+		if field_value ~= nil then
+			if not firstField then newLineProtocol = newLineProtocol .. "," end
+			newLineProtocol = newLineProtocol .. field .. "=" .. tostring(field_value)
+			submitLineProtocol = true
+			firstField = false
 		end
+	end
+	
+	-- if we've retrieved at least one valid field value, then we should have valid line protocol
+	if submitLineProtocol then
+		-- add to line protocol payload
+		newLineProtocol = sanitizeMeasurement(serviceId) .. lineProtocolDeviceTags .. newLineProtocol .. "\n"
+		-- veraFluxDebugLog("New Line Protocol: " .. newLineProtocol)
+		PER_DEVICE_LINE_PROTOCOL = PER_DEVICE_LINE_PROTOCOL .. newLineProtocol
 	end
 	veraFluxDebugLog("processDevice end: return PER_DEVICE_LINE_PROTOCOL=" .. tostring(PER_DEVICE_LINE_PROTOCOL))
 	return PER_DEVICE_LINE_PROTOCOL
@@ -431,11 +426,18 @@ local function addAllDeviceValues()
 	-- loop through all devices
 	for deviceId,d in pairs(luup.devices) do
 		if not d.invisible then -- ignore "for internal use only" devices
-			LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, servicesTable, "polled")
+			-- for each service...
+			for serviceId, serviceTable in pairs(servicesTable) do			
+				-- check if the current device supports the service
+				if luup.device_supports_service(serviceId, deviceId) then
+					LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(deviceId, d, serviceId, "polled")
+				end
+			end
 		end
 	end
 	veraFluxDebugLog("addAllDeviceValues end")
 end
+
 
 local function getDeviceObjectByID(lul_device)
 	veraFluxDebugLog("getDeviceObjectByID called: lul_device=" .. tostring(lul_device))
@@ -479,7 +481,7 @@ function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, 
 		
 		-- process the device and generate line protocol
 		d = getDeviceObjectByID(lul_device)
-		LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(lul_device, d, st, "watched")
+		LINE_PROTOCOL = LINE_PROTOCOL .. processDevice(lul_device, d, lul_service, "watched")
 		
 		-- submit line protocol
 		sendVeraFluxData() -- send all generated line protocol to influx
@@ -523,7 +525,7 @@ end
 -- The main function is used for starting up device
 --
 function main(parentDevice)
-	veraFluxDebugLog("main called: parentDevice=" .. tostring(parentDevice))
+	veraFluxLog("VeraFlux Started: parentDevice=" .. tostring(parentDevice))
 	--
 	-- Note these are "pass-by-Global" values that veraFluxOnTimer will later use.
 	--
@@ -546,9 +548,9 @@ function main(parentDevice)
 	-- Do this deferred to avoid slowing down startup processes.
 	--
 	veraFluxDebugLog("main function - initialise OnTimer")
-	luup.call_timer("veraFluxOnTimer", 1, "1", "")
+	luup.call_timer("veraFluxOnTimer", 1, tostring(period), "")
 	veraFluxDebugLog("main function - initialise Callbacks")
-	luup.call_timer("veraFluxSetupCallbacks", 1, "2", "")
+	luup.call_timer("veraFluxSetupCallbacks", 1, "1", "")
 	veraFluxDebugLog("main end return true")
 	return true
 end
