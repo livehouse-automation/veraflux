@@ -315,8 +315,8 @@ local function sanitizeMeasurement(measurement)
 	return measurement
 end
 
-local function processDevice(deviceId, d, svcsTbl, serviceId, howTriggered)
-	veraFluxDebugLog("processDevice called: deviceId=" .. tostring(deviceId) .. ", d=" .. tostring(d) .. ", svcsTbl=" .. tostring(svcsTbl) .. ", howTriggered=" .. tostring(howTriggered))
+local function processDevice(deviceId, d, serviceId, howTriggered)
+	veraFluxDebugLog("processDevice called: deviceId=" .. tostring(deviceId) .. ", d=" .. tostring(d) .. ", serviceId=" .. tostring(serviceId) .. ", howTriggered=" .. tostring(howTriggered))
 	-- prepare the line protocol for an individual device
 	--   * deviceId is the device ID number
 	--   * d is the device as an object
@@ -387,7 +387,7 @@ local function processDevice(deviceId, d, svcsTbl, serviceId, howTriggered)
 	local submitLineProtocol = false
 	
 	-- fetch tags
-	for i, tag in ipairs(svcsTbl[serviceId]['tags']) do
+	for i, tag in ipairs(servicesTable[serviceId]['tags']) do
 		tag_value, tstamp = luup.variable_get(serviceId, tag, deviceId)
 		tag = sanitizeTagKeysAndValues(tag)
 		tag_value = sanitizeTagKeysAndValues(tag_value)
@@ -396,7 +396,7 @@ local function processDevice(deviceId, d, svcsTbl, serviceId, howTriggered)
 	newLineProtocol = newLineProtocol .. " "
 	
 	-- fetch values
-	for i, field in ipairs(svcsTbl[serviceId]['fields']) do
+	for i, field in ipairs(servicesTable[serviceId]['fields']) do
 		field_value, tstamp = luup.variable_get(serviceId, field, deviceId)
 		field = sanitizeTagKeysAndValues(field)
 		
@@ -472,12 +472,6 @@ function veraFluxWatchedVariableCallback(lul_device, lul_service, lul_variable, 
 	if (enable == "1") then
 						
 		veraFluxDebugLog("LiveHouseInflux: watchedVariableCallBack: Fetching data for device " .. tostring(lul_device) .. ", service " .. tostring(lul_service) .. ", variable " .. lul_variable)
-		
-		-- prepare a servicesTable-type dict to pass to processDevice
-		local st = {}
-		st[lul_service] = {}
-		st[lul_service]['fields'] = {tostring(lul_variable)}         -- we're only interested in the changed variable...
-		st[lul_service]['tags'] = servicesTable[lul_service]['tags'] -- but we still want all the tags.
 		
 		-- process the device and generate line protocol
 		d = getDeviceObjectByID(lul_device)
