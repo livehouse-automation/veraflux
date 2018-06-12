@@ -400,13 +400,6 @@ local function getDeviceObjectByID(lul_device)
 	local deviceFound = false
 	local deviceObject = nil
 	for deviceId,d in pairs(luup.devices) do
-		-- Debugging code - remove when working
-		luup.log("VeraFluxDEBUG: deviceId type: " .. type(deviceId))
-		luup.log("VeraFluxDEBUG: deviceId value: " .. tostring(deviceId))
-		luup.log("VeraFluxDEBUG: lul_device type: " .. type(lul_device))
-		luup.log("VeraFluxDEBUG: lul_device value: " .. tostring(lul_device))
-		-- End debugging code
-		-- TODO: try removing tostring functions from if statement below. Shouldn't be needed. Added for troubleshooting.
 		if lul_device == deviceId then
 			deviceObject = d
 			deviceFound = true
