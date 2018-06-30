@@ -29,9 +29,9 @@ local DEFAULT_PERIOD = 60 -- number of seconds between polling variables
 local servicesTable = {}
 
 servicesTable['urn:futzle-com:serviceId:AstronomicalPosition_Sun'] = {}
-servicesTable['urn:micasaverde-com:serviceId:HaDevice1']['fields'] = {"RightAscension", "RightAscension360", "RightAscensionRounded", "Declination", "DeclinationRounded", "Azimuth", "Azimuth360", "AzimuthRounded", "Altitude", "AltitudeRounded"}
-servicesTable['urn:micasaverde-com:serviceId:HaDevice1']['watchedFields'] = {}
-servicesTable['urn:micasaverde-com:serviceId:HaDevice1']['tags'] = {}
+servicesTable['urn:futzle-com:serviceId:AstronomicalPosition_Sun']['fields'] = {"RightAscension", "RightAscension360", "RightAscensionRounded", "Declination", "DeclinationRounded", "Azimuth", "Azimuth360", "AzimuthRounded", "Altitude", "AltitudeRounded"}
+servicesTable['urn:futzle-com:serviceId:AstronomicalPosition_Sun']['watchedFields'] = {}
+servicesTable['urn:futzle-com:serviceId:AstronomicalPosition_Sun']['tags'] = {}
 
 servicesTable['urn:micasaverde-com:serviceId:HaDevice1'] = {}
 servicesTable['urn:micasaverde-com:serviceId:HaDevice1']['fields'] = {"BatteryLevel", "PollRatings", "WakeupRatings", "LastUpdate"}
