@@ -34,7 +34,7 @@ It currently pulls in data from Vera itself and these services.
 -  'urn:upnp-org:serviceId:IPhoneLocator1'
 -  'urn:upnp-org:serviceId:DistanceSensor1'
 
-All values are sent to Influx on the polling period. In addition there are watched values for SecuritySensor1, IPhoneLocator1, DoorLock1 and SwitchPower1 which are sent immediately on change. This is to allow more real time dsahboards without polling the hell out of Vera.
+All values are sent to Influx on the polling period. In addition there are watched values for SecuritySensor1, IPhoneLocator1, DoorLock1 and SwitchPower1 which are sent immediately on change. This is to allow more real time dashboards without polling the hell out of Vera.
    
 Known limitations in current beta:
 
