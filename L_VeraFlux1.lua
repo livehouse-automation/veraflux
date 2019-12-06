@@ -94,7 +94,7 @@ servicesTable['urn:micasaverde-com:serviceId:HumiditySensor1']['watchedFields'] 
 servicesTable['urn:micasaverde-com:serviceId:HumiditySensor1']['tags'] = {}
 
 servicesTable['urn:micasaverde-com:serviceId:EnergyMetering1'] = {}
-servicesTable['urn:micasaverde-com:serviceId:EnergyMetering1']['fields'] = {"Watts", "KWH", "Volts", "Amps"}
+servicesTable['urn:micasaverde-com:serviceId:EnergyMetering1']['fields'] = {"Watts", "KWH", "Volts", "Amps", "DayKWH", "WeekKWH", "MonthKWH", "YearKWH", "LifeKWH"}
 servicesTable['urn:micasaverde-com:serviceId:EnergyMetering1']['watchedFields'] = {}
 servicesTable['urn:micasaverde-com:serviceId:EnergyMetering1']['tags'] = {}
 
